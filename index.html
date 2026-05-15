@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CertiStay V2</title>
+<style>
+*{box-sizing:border-box}
+:root{
+--bg:#090b10;--panel:#111722;--panel2:#171f2c;--gold:#e7c27b;--gold2:#f5ddb2;
+--text:#f8f7f3;--muted:#aeb6c2;--ok:#41d17d;--bad:#ff6b6b;--line:rgba(255,255,255,.10)
+}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at top right,#1e2633 0,#090b10 42%,#06070a 100%);color:var(--text)}
+.app{max-width:1180px;margin:auto;padding:22px 18px 90px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.logo{font-weight:900;font-size:24px;letter-spacing:-.03em}.logo span{color:var(--gold)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+@media(max-width:850px){.hero{grid-template-columns:1fr}.hideMobile{display:none}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));border:1px solid var(--line);border-radius:30px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.35);backdrop-filter:blur(8px)}
+h1{font-size:62px;line-height:.95;margin:12px 0 16px;letter-spacing:-.06em}
+@media(max-width:650px){h1{font-size:42px}}
+h2{font-size:28px;margin:0 0 14px;letter-spacing:-.03em}
+h3{margin:18px 0 10px}
+p{color:var(--muted);line-height:1.55}
+button,input,select{width:100%;font-size:16px;border-radius:16px;padding:15px;margin:7px 0}
+input,select{border:1px solid var(--line);background:#0d121b;color:var(--text);outline:none}
+input::placeholder{color:#697280}
+button{border:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#15110a;font-weight:900;cursor:pointer}
+button.dark{background:#0d121b;color:var(--text);border:1px solid var(--line)}
+button.red{background:#422;color:#ffdada;border:1px solid rgba(255,107,107,.35)}
+button.green{background:#163b26;color:#caffdd;border:1px solid rgba(65,209,125,.35)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(9,11,16,.92);border-top:1px solid var(--line);padding:9px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;z-index:20;backdrop-filter:blur(12px)}
+.tabs button{margin:0;padding:12px 6px;border-radius:14px;font-size:13px;background:#151b26;color:var(--muted);border:1px solid var(--line)}
+.tabs button.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111}
+.screen{display:none}.screen.active{display:block}
+.badge{display:inline-block;border:1px solid rgba(231,194,123,.35);color:var(--gold);border-radius:999px;padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.kpi{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:20px;padding:16px}.kpi b{font-size:26px}
+.phone{max-width:330px;margin:auto;background:#05070a;border:1px solid var(--line);border-radius:38px;padding:18px;box-shadow:0 22px 80px rgba(0,0,0,.55)}
+.phoneScreen{background:linear-gradient(180deg,#192131,#0d111a);border-radius:30px;padding:22px;min-height:500px}
+.qr{width:180px;height:180px;background:#fff;margin:18px auto;border-radius:18px;display:grid;place-items:center;color:#111;font-weight:900}
+.item{border-top:1px solid var(--line);padding:14px 0}.item:first-child{border-top:0}
+.status{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900}
+.created,.waiting{background:#332b14;color:#ffd77a}.authorized,.checkedout{background:#123820;color:#8bffb5}.refused,.expired{background:#3a1717;color:#ff9c9c}
+.ok{background:rgba(65,209,125,.12);border:1px solid rgba(65,209,125,.35);padding:14px;border-radius:16px;color:#caffdd;margin:10px 0}
+.warn{background:rgba(231,194,123,.12);border:1px solid rgba(231,194,123,.35);padding:14px;border-radius:16px;color:#ffe3a8;margin:10px 0}
+.danger{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.35);padding:14px;border-radius:16px;color:#ffdada;margin:10px 0}
+.code{font-family:monospace;background:#05070a;border:1px solid var(--line);border-radius:12px;padding:12px;word-break:break-all;color:#dce3ee}
+.receipt{background:#fff;color:#111;border-radius:22px;padding:22px;margin-top:12px}.receipt p{color:#333}.kv{display:grid;grid-template-columns:150px 1fr;border-top:1px solid #ddd;padding:9px 0}.kv b{color:#555}
+@media print{body{background:#fff;color:#111}.tabs,.nav,.noPrint,.card:not(.printArea){display:none!important}.printArea{box-shadow:none;border:0}.receipt{display:block}}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="nav noPrint">
+  <div class="logo">Certi<span>Stay</span></div>
+  <div class="pill">Host dashboard + Guest link</div>
+</div>
+
+<section id="home" class="screen active">
+<div class="hero">
+  <div class="card">
+    <span class="badge">Airbnb / B&B / Case vacanza</span>
+    <h1>Check‑in digitale. Chiavi sotto controllo.</h1>
+    <p>CertiStay consente all’host di creare una prenotazione, generare un link/QR per l’ospite e registrare check‑in e check‑out con ricevuta PDF.</p>
+    <div class="kpis">
+      <div class="kpi"><b>QR</b><br><span class="small">senza app ospite</span></div>
+      <div class="kpi"><b>60s</b><br><span class="small">autorizzazione rapida</span></div>
+      <div class="kpi"><b>PDF</b><br><span class="small">registro evento</span></div>
+    </div>
+    <button onclick="show('host')">Entra come host</button>
+    <button class="dark" onclick="show('guest')">Simula ospite</button>
+  </div>
+  <div class="phone hideMobile">
+    <div class="phoneScreen">
+      <div class="badge">Ospite</div>
+      <h2 style="margin-top:18px">Benvenuto</h2>
+      <p id="phoneGuest">Mario Rossi</p>
+      <div class="qr">QR</div>
+      <button>Richiedi check‑in</button>
+      <p class="small">Nessuna app da scaricare. Solo fotocamera.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="host" class="screen">
+<div class="grid">
+  <div class="card">
+    <h2>Dashboard host</h2>
+    <p>Crea una prenotazione manuale. In futuro potrà collegarsi a Airbnb, Booking, iCal o channel manager.</p>
+    <input id="guestName" placeholder="Nome ospite es. Mario Rossi">
+    <input id="bookingCode" placeholder="Codice prenotazione es. AB-129">
+    <input id="propertyName" placeholder="Appartamento es. Suite 42">
+    <input id="checkinDate" type="datetime-local">
+    <input id="checkoutDate" type="datetime-local">
+    <select id="accessType">
+      <option value="Keybox / locker chiavi">Keybox / locker chiavi</option>
+      <option value="Codice temporaneo">Codice temporaneo</option>
+      <option value="Consegna istruzioni">Consegna istruzioni</option>
+    </select>
+    <button onclick="createReservation()">Genera link ospite</button>
+    <div id="createdOut"></div>
+  </div>
+  <div class="card">
+    <h2>Richieste live</h2>
+    <div id="requestsOut"><div class="warn">Nessuna richiesta in arrivo.</div></div>
+  </div>
+</div>
+<div class="card">
+  <h2>Storico</h2>
+  <div id="historyOut"></div>
+</div>
+</section>
+
+<section id="guest" class="screen">
+<div class="card">
+  <h2>Pagina ospite</h2>
+  <p>Questa è la pagina che l’ospite apre scansionando il QR o cliccando il link ricevuto.</p>
+  <input id="guestBookingInput" placeholder="Codice prenotazione">
+  <button onclick="loadGuest()">Apri prenotazione</button>
+  <div id="guestPageOut"></div>
+</div>
+</section>
+
+<section id="receiptScreen" class="screen">
+<div class="card printArea">
+  <h2>Ricevuta CertiStay</h2>
+  <div id="receiptOut"></div>
+  <button class="noPrint" onclick="window.print()">Scarica / stampa PDF</button>
+</div>
+</section>
+
+<section id="connect" class="screen">
+<div class="card">
+  <h2>Collegamento prenotazioni</h2>
+  <p>Per ora il sistema funziona manualmente. La logica corretta per venderlo agli host è questa:</p>
+  <div class="item"><b>1. Manuale</b><br><span class="small">Host inserisce prenotazione a mano. Perfetto per MVP.</span></div>
+  <div class="item"><b>2. Semi‑automatico</b><br><span class="small">Caricamento CSV o copia/incolla da Airbnb/Booking.</span></div>
+  <div class="item"><b>3. Pro</b><br><span class="small">Collegamento a iCal, channel manager, PMS o API.</span></div>
+</div>
+</section>
+</div>
+
+<div class="tabs noPrint">
+<button id="t-home" class="active" onclick="show('home')">Home</button>
+<button id="t-host" onclick="show('host')">Host</button>
+<button id="t-guest" onclick="show('guest')">Ospite</button>
+<button id="t-connect" onclick="show('connect')">Integrazioni</button>
+</div>
+
+<script>
+const KEY="certistay_v2_data";
+let data=JSON.parse(localStorage.getItem(KEY)||'{"reservations":{},"events":[]}');
+let activeReservation=null;
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));renderHost();}
+function uid(){return "STAY-"+Date.now().toString(36).toUpperCase();}
+function fmt(v){if(!v)return "-";try{return new Date(v).toLocaleString("it-IT")}catch(e){return v}}
+function esc(s){return String(s||"").replace(/[<>&"]/g,m=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[m]))}
+function statusLabel(s){return {created:"CREATA",waiting:"IN ATTESA",authorized:"CHECK-IN OK",refused:"RIFIUTATA",checkedout:"CHECK-OUT OK"}[s]||s}
+function badge(s){return '<span class="status '+s+'">'+statusLabel(s)+'</span>'}
+
+function show(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+ let t=document.getElementById("t-"+id); if(t)t.classList.add("active");
+ if(id==="host")renderHost();
+}
+
+function createReservation(){
+ const guest=guestName.value.trim(), booking=bookingCode.value.trim(), property=propertyName.value.trim();
+ if(!guest||!booking||!property){alert("Compila ospite, codice prenotazione e appartamento.");return}
+ const r={id:uid(),guest,booking,property,checkin:checkinDate.value,checkout:checkoutDate.value,accessType:accessType.value,status:"created",createdAt:new Date().toISOString()};
+ data.reservations[booking]=r;
+ save();
+ const link=location.origin+location.pathname+"?booking="+encodeURIComponent(booking);
+ createdOut.innerHTML='<div class="ok"><b>Prenotazione creata.</b><br>Link ospite:<div class="code">'+link+'</div><button class="dark" onclick="copyLink(\\''+link+'\\')">Copia link</button></div>';
+ guestBookingInput.value=booking;
+}
+
+function copyLink(link){navigator.clipboard&&navigator.clipboard.writeText(link);alert("Link copiato.");}
+
+function renderHost(){
+ const reqs=Object.values(data.reservations).filter(r=>r.status==="waiting");
+ requestsOut.innerHTML=reqs.length?reqs.map(r=>'<div class="item"><b>'+esc(r.guest)+'</b> '+badge(r.status)+'<br>Prenotazione: '+esc(r.booking)+'<br>Appartamento: '+esc(r.property)+'<br>Richiesta: '+fmt(r.requestAt)+'<button class="green" onclick="hostDecision(\\''+r.booking+'\\',\\'authorized\\')">Autorizza check‑in</button><button class="red" onclick="hostDecision(\\''+r.booking+'\\',\\'refused\\')">Rifiuta</button></div>').join(""):'<div class="warn">Nessuna richiesta in arrivo.</div>';
+ const list=Object.values(data.reservations).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+ historyOut.innerHTML=list.length?list.map(r=>'<div class="item"><b>'+esc(r.guest)+'</b> '+badge(r.status)+'<br>Codice: '+esc(r.booking)+' • '+esc(r.property)+'<br><span class="small">Check-in previsto: '+fmt(r.checkin)+' | Check-out previsto: '+fmt(r.checkout)+'</span><button class="dark" onclick="openReceipt(\\''+r.booking+'\\')">Ricevuta</button></div>').join(""):'<div class="warn">Nessuna prenotazione.</div>';
+}
+
+function loadGuest(){
+ const code=guestBookingInput.value.trim();
+ const r=data.reservations[code];
+ if(!r){guestPageOut.innerHTML='<div class="danger">Prenotazione non trovata.</div>';return}
+ activeReservation=code;
+ renderGuest(r);
+}
+
+function renderGuest(r){
+ let actions="";
+ if(r.status==="created"){
+   actions='<button onclick="requestCheckin()">Richiedi check‑in</button>';
+ } else if(r.status==="waiting"){
+   actions='<div class="warn">Richiesta inviata. Attendi autorizzazione host.</div>';
+ } else if(r.status==="authorized"){
+   actions='<div class="ok"><b>Check‑in autorizzato.</b><br>'+esc(r.accessType)+' disponibile.</div><button onclick="requestCheckout()">Conferma check‑out</button>';
+ } else if(r.status==="refused"){
+   actions='<div class="danger">Richiesta rifiutata. Contatta l’host.</div>';
+ } else if(r.status==="checkedout"){
+   actions='<div class="ok"><b>Check‑out registrato.</b><br>Grazie per il soggiorno.</div>';
+ }
+ guestPageOut.innerHTML='<div class="card" style="background:#0d121b"><span class="badge">Prenotazione</span><h2>Benvenuto, '+esc(r.guest)+'</h2><p>Codice: <b>'+esc(r.booking)+'</b><br>Appartamento: <b>'+esc(r.property)+'</b><br>Check‑in: '+fmt(r.checkin)+'<br>Check‑out: '+fmt(r.checkout)+'</p>'+actions+'</div>';
+}
+
+function requestCheckin(){
+ const r=data.reservations[activeReservation];
+ r.status="waiting"; r.requestAt=new Date().toISOString();
+ data.events.push({type:"checkin_request",booking:r.booking,time:r.requestAt});
+ save(); renderGuest(r); show("host");
+}
+
+function hostDecision(code,decision){
+ const r=data.reservations[code];
+ r.status=decision;
+ r.decisionAt=new Date().toISOString();
+ data.events.push({type:decision==="authorized"?"checkin_authorized":"checkin_refused",booking:code,time:r.decisionAt});
+ save();
+ openReceipt(code);
+}
+
+function requestCheckout(){
+ const r=data.reservations[activeReservation];
+ r.status="checkedout"; r.checkoutRealAt=new Date().toISOString();
+ data.events.push({type:"checkout_confirmed",booking:r.booking,time:r.checkoutRealAt});
+ save();
+ openReceipt(r.booking);
+}
+
+function openReceipt(code){
+ const r=data.reservations[code]; if(!r){alert("Ricevuta non trovata");return}
+ receiptOut.innerHTML='<div class="receipt"><h2>CertiStay Receipt</h2><p>Registro check‑in/check‑out</p><div class="kv"><b>ID</b><span>'+esc(r.id)+'</span></div><div class="kv"><b>Ospite</b><span>'+esc(r.guest)+'</span></div><div class="kv"><b>Prenotazione</b><span>'+esc(r.booking)+'</span></div><div class="kv"><b>Appartamento</b><span>'+esc(r.property)+'</span></div><div class="kv"><b>Accesso</b><span>'+esc(r.accessType)+'</span></div><div class="kv"><b>Check‑in previsto</b><span>'+fmt(r.checkin)+'</span></div><div class="kv"><b>Check‑out previsto</b><span>'+fmt(r.checkout)+'</span></div><div class="kv"><b>Richiesta</b><span>'+fmt(r.requestAt)+'</span></div><div class="kv"><b>Decisione host</b><span>'+fmt(r.decisionAt)+'</span></div><div class="kv"><b>Check‑out reale</b><span>'+fmt(r.checkoutRealAt)+'</span></div><div class="kv"><b>Esito</b><span>'+statusLabel(r.status)+'</span></div></div>';
+ show("receiptScreen");
+}
+
+(function init(){
+ const params=new URLSearchParams(location.search);
+ const booking=params.get("booking");
+ if(booking){guestBookingInput.value=booking;show("guest");loadGuest();}
+ renderHost();
+})();
+</script>
+</body>
+</html>
